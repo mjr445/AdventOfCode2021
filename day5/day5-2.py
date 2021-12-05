@@ -42,8 +42,6 @@ with open("day5.txt", "r") as file:
                 y1, y2 = y2, y1
             for y in range(y1, y2+1):
                 point = (x1, y)
-                if point in overlapped:
-                    continue
                 if point in visited:
                     overlapped.add(point)
                     visited.remove(point)
@@ -55,8 +53,6 @@ with open("day5.txt", "r") as file:
                 x1, x2 = x2, x1
             for x in range(x1, x2+1):
                 point = (x, y1)
-                if point in overlapped:
-                    continue
                 if point in visited:
                     overlapped.add(point)
                     visited.remove(point)
