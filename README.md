@@ -1,4 +1,4 @@
-# AdventOfCode2020
+# Advent Of Code 2021
 
 These are my solutions for each day of the Advent of Code 2021 Challenge.
 
