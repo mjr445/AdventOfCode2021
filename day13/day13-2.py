@@ -1,5 +1,3 @@
-CAPITAL_LETTERS = 8
-
 from numpy import flipud, fliplr, full, savetxt
 
 with open("day13.txt") as file:
@@ -39,8 +37,7 @@ with open("day13.txt") as file:
 
             right_fold = fliplr(right_fold)
             grid = left_fold | right_fold
-    
-    y_section_size = grid.shape[1] // CAPITAL_LETTERS
+
     string_grid = full(grid.shape, ' ')
     string_grid[grid] = '#'
     savetxt('day13_out.txt', string_grid, fmt='%s')  # I'm not writing code to detect a letter, I'm just going to look visually
