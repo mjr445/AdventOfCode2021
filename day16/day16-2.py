@@ -1,3 +1,27 @@
+def handle_value_based_on_packet_type(new_value, final_value, packet_type_id):
+    if not final_value:
+        return new_value
+
+    if packet_type_id == 0:
+        return new_value + final_value
+
+    elif packet_type_id == 1:
+        return new_value * final_value
+
+    elif packet_type_id == 2:
+        return min(new_value, final_value)
+
+    elif packet_type_id == 3:
+        return max(new_value, final_value)
+
+    elif packet_type_id == 5:
+        return int(final_value > new_value)
+        
+    elif packet_type_id == 6:
+        return int(final_value < new_value)
+    else:  # ID is 7
+        return int(new_value == final_value)
+
 def read_sub_packet(packet, starting_index, max_packet_length=None):
 
     if max_packet_length:
@@ -32,10 +56,11 @@ def read_sub_packet(packet, starting_index, max_packet_length=None):
 
             starting_index = ending_index
         
-        final_value = packet_version
+        final_value = int(final_value, 2)
     
     else:  # It's an operator
-        final_value = current_length_of_sub_packets = 0
+        final_value = None
+        current_length_of_sub_packets = 0
 
         length_type_id = packet[packet_type_id_index_end]
         if length_type_id == "0":
@@ -46,7 +71,7 @@ def read_sub_packet(packet, starting_index, max_packet_length=None):
             while current_length_of_sub_packets != max_length_of_sub_packets:
                 sub_packet_value, sub_packet_length = read_sub_packet(packet, new_sub_packet_index_start, max_length_of_sub_packets - current_length_of_sub_packets)
 
-                final_value = final_value + sub_packet_value
+                final_value = handle_value_based_on_packet_type(sub_packet_value, final_value, packet_type_id)
                 current_length_of_sub_packets = current_length_of_sub_packets + sub_packet_length
                 new_sub_packet_index_start = new_sub_packet_index_start + sub_packet_length
             
@@ -58,18 +83,16 @@ def read_sub_packet(packet, starting_index, max_packet_length=None):
             
             number_of_sub_packets = int(packet[number_of_sub_packets_index_start:new_sub_packet_index_start], 2)  # Next 11 bits
 
-            for i in range(number_of_sub_packets):
+            for _ in range(number_of_sub_packets):
                 sub_packet_value, sub_packet_length = read_sub_packet(packet, new_sub_packet_index_start, max_packet_length)
 
-                final_value = final_value + sub_packet_value
+                final_value = handle_value_based_on_packet_type(sub_packet_value, final_value, packet_type_id)
                 current_length_of_sub_packets = current_length_of_sub_packets + sub_packet_length
                 new_sub_packet_index_start = new_sub_packet_index_start + sub_packet_length
         
             final_sub_packet_length = current_length_of_sub_packets + 11
         
         final_sub_packet_length = final_sub_packet_length + 1
-
-        final_value = final_value + packet_version
     
     final_sub_packet_length = final_sub_packet_length + 6
     return final_value, final_sub_packet_length
@@ -77,14 +100,14 @@ def read_sub_packet(packet, starting_index, max_packet_length=None):
 
 with open("day16.txt", "r") as file:
     final_sum = 0
-    for packet in file:
-        packet = packet.strip()
-        packet = bin(int(packet, 16))[2:]  # Hex to Binary
+    packet = file.readline().strip()
+    first_value_is_zero = packet[0] == "0"
+    packet = bin(int(packet, 16))[2:]  # Hex to Binary
 
-        missing_leading_zeros = 4 - len(packet) % 4
-        if missing_leading_zeros != 4:
-            packet = ("0" * missing_leading_zeros) + packet
-
-        intermediate_sum, _ = read_sub_packet(packet, 0)
-        final_sum = final_sum + intermediate_sum
+    missing_leading_zeros = 4 - len(packet) % 4
+    if missing_leading_zeros != 4:
+        packet = ("0" * missing_leading_zeros) + packet
+    if first_value_is_zero:
+        packet = "0000" + packet
+    final_sum, _ = read_sub_packet(packet, 0)
     print(final_sum)
