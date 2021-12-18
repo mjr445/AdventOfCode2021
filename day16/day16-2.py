@@ -1,5 +1,5 @@
 def handle_value_based_on_packet_type(new_value, final_value, packet_type_id):
-    if not final_value:
+    if final_value is None:
         return new_value
 
     if packet_type_id == 0:
