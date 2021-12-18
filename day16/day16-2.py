@@ -101,13 +101,18 @@ def read_sub_packet(packet, starting_index, max_packet_length=None):
 with open("day16.txt", "r") as file:
     final_sum = 0
     packet = file.readline().strip()
-    first_value_is_zero = packet[0] == "0"
+    
+    number_of_leading_zeros = 0
+    while packet[number_of_leading_zeros] == "0":
+        number_of_leading_zeros = number_of_leading_zeros + 1
+    
     packet = bin(int(packet, 16))[2:]  # Hex to Binary
 
     missing_leading_zeros = 4 - len(packet) % 4
     if missing_leading_zeros != 4:
         packet = ("0" * missing_leading_zeros) + packet
-    if first_value_is_zero:
-        packet = "0000" + packet
+    if number_of_leading_zeros != 0:
+        packet = "0000" * number_of_leading_zeros + packet
+    
     final_sum, _ = read_sub_packet(packet, 0)
     print(final_sum)
